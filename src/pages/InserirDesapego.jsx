@@ -72,6 +72,23 @@ export default function Desapego() {
             console.log(erro.response.data);
         });
 
+        const promise2 = axios.post(`${import.meta.env.VITE_API_URL}/inserirProdutoCopia`, obj, config);
+
+        promise2.then(resposta => {
+        
+            console.log(resposta.data, "lista");
+
+            navigate('/catalogo');
+
+        });
+
+        promise2.catch(erro => {
+            
+            console.error('Error:', erro);
+            alert('Houve um problema!');
+            console.log(erro.response.data);
+        });
+
     }
 
     return (

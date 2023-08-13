@@ -4,21 +4,93 @@ import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Logo from "../components/FreelaLogo";
 import { LoginContext } from "../contexts/LoginContext";
-import { EndereçoContext } from "../contexts/EndereçoContext";
 
 export default function Checkout() {
   const navigate = useNavigate()
-  const { totalCalculo, total, setTotal, getCarrinho, setGetCarrinho, isLoged, setValorCarrinho } = useContext(LoginContext)
-  const { setnomeCompleto, setTelefone, setCep, setRua, setNumeroCasa, setState, setCidade, setBairro, setCPF } = useContext(EndereçoContext);
-  const {nomeCompleto,telefone, cep, rua, numeroCasa, state, cidade, bairro, cpf} = useContext(EndereçoContext)
-  const [payMethod, setPayMethod] = useState("Boleto")
-  const [parcelas, setParcelas] = useState("1")
-  const [totalNumerico, setTotalNumerico] = useState(0)
-  const [numeroCartao, setNumeroCartao] = useState("")
+  const { totalCalculo, getCarrinho, setGetCarrinho, isLoged, setValorCarrinho } = useContext(LoginContext);
+  const [payMethod, setPayMethod] = useState("Boleto");
+  const [parcelas, setParcelas] = useState("1");
+  const [numeroCartao, setNumeroCartao] = useState("");
   const [numParcelas, setNumParcelas] = useState(1);
   const [cvv, setCVV] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [nomeCartao, setNomeCartao] = useState("");
+
+  useEffect(() => {
+    isLoged();
+
+    const token = localStorage.getItem("token");
+
+    const config = {
+      headers: {
+          Authorization: "Bearer " + token
+      }
+  }
+
+    axios.get(`${import.meta.env.VITE_API_URL}/carrinho`, config)
+
+      .then((response) => {
+
+        const carrinhodecompras = response.data;
+        setGetCarrinho(response.data)
+        console.log(response.data, "get aqui please");
+
+      })
+
+      .catch((error) => {
+
+        console.error(error);
+
+      });
+  }, []);
+
+  function apagarProdutosAoComprar() {
+    const token = localStorage.getItem("token"); // Supondo que você tenha o token salvo no localStorage
+    const idsParaExcluir = getCarrinho.map((produto) => produto.idProduto);
+  
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      data: { ids: idsParaExcluir }
+    };
+  
+    // Fazendo a requisição para o servidor usando o Axios com a configuração do cabeçalho
+    axios.delete(`${import.meta.env.VITE_API_URL}/excluir`,config)
+    .then((response) => {
+      console.log('Resultado da exclusão:', response.data);
+      setValorCarrinho(0);
+      navigate("/confirmacao");
+    })
+    .catch((error) => {
+      console.error('Erro na requisição:', error);
+    });
+  }
+
+  function atualizaCheckDeAcordoComIds() {
+    const token = localStorage.getItem("token"); // Supondo que você tenha o token salvo no localStorage
+    const idsParaExcluir = getCarrinho.map((produto) => produto.idProduto);
+
+    console.log(getCarrinho, "get");
+    console.log(idsParaExcluir, "ids");
+
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+
+    axios.put(`${import.meta.env.VITE_API_URL}/check`, { ids: idsParaExcluir }, config)
+        .then(response => {
+            console.log('Atualização bem-sucedida:', response.data);
+            navigate("/confirmacao");
+        })
+        .catch(error => {
+            console.error('Erro ao atualizar:', error);
+        });
+}
+
+  
 
 
   const handleNumParcelasChange = (e) => {
@@ -62,27 +134,6 @@ export default function Checkout() {
     setExpirationDate(formatExpirationDate(e.target.value));
   };
 
-  useEffect(() => {
-    isLoged();
-    axios.get(`${import.meta.env.VITE_API_URL}/carrinho`)
-      .then((response) => {
-        setGetCarrinho(response.data)
-        let totalCompra = 0;
-
-        response.data.forEach(produto => {
-          totalCompra += parseFloat(produto.valor * produto.quantidade);
-        });
-        setTotalNumerico(totalCompra)
-        const saldoFinal = Math.abs(totalCompra).toFixed(2).replace(".", ",");
-        setTotal(saldoFinal);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-
-
-  }, []);
-
   function setBoleto() {
     setPayMethod("Boleto");
     setParcelas("1");
@@ -90,49 +141,36 @@ export default function Checkout() {
 
   function finalizarCompra() {
     const confirmacao = window.confirm("Tem certeza de que deseja finalizar a compra?");
+
     if (!confirmacao) return
+
     const userid = localStorage.getItem("userid");
-    let postObj = {
-      carrinho: getCarrinho,
-      userid,
-      valor: totalNumerico,
-      parcelas,
-      tipo: payMethod,
-      nomeCompleto,
-      telefone,
-      cep,
-      rua,
-      numeroCasa,
-      state,
-      cidade,
-      bairro,
-      cpf:cpf.replaceAll(".","").replace("-","")
+
+    let postObj;
+   
+    if (payMethod === "Boleto") {
+
+       postObj = {
+        carrinho: JSON.stringify(getCarrinho),
+        userid,
+        valor: totalCalculo,
+        parcelas: 1,
+        tipo: payMethod
+      }
+    } else {
+      postObj = {
+        carrinho: JSON.stringify(getCarrinho),
+        userid,
+        valor: totalCalculo,
+        parcelas,
+        tipo: payMethod
+      }
     }
-    if (payMethod !== "Boleto") postObj = { ...postObj, ccnumber: numeroCartao, cvv, expirationDate, nomeCartao}
     console.log(postObj)
 
     const promise = axios.post(`${import.meta.env.VITE_API_URL}/compra`, postObj);
     promise.then(resposta => {
-      axios.delete(`${import.meta.env.VITE_API_URL}/carrinho`)
-        .then((response) => {
-          setValorCarrinho(0);
-          navigate("/confirmacao");
-        })
-        .catch((error) => {
-          console.error(error);
-          alert("Houve um problema com seu pagamento, tente novamente!");
-        });
-
-      setnomeCompleto("");
-      setTelefone("");
-      setCep("");
-      setRua("");
-      setNumeroCasa("");
-      setState("");
-      setCidade("");
-      setBairro("");
-      setCPF("");
-
+      navigate("/confirmacao");
     });
 
     promise.catch(erro => {
@@ -140,6 +178,13 @@ export default function Checkout() {
       alert(erro.response.data)
     });
   }
+
+  function handleFinalizarTudo() {
+    apagarProdutosAoComprar();
+    finalizarCompra();
+    atualizaCheckDeAcordoComIds();
+  }
+
   return (
     <SCcheckoutPage>
 
@@ -182,7 +227,7 @@ export default function Checkout() {
         </SCPagamentoContainer>
       }
       <SCButtonContainer>
-        <SCFinalizarButon onClick={finalizarCompra} disabled={payMethod==="Cartão de Crédito" &&(parcelas === "" || numeroCartao === "" || cvv==="" || expirationDate==="" || nomeCartao==="")}>Finalizar compra</SCFinalizarButon>
+        <SCFinalizarButon onClick={handleFinalizarTudo} disabled={payMethod==="Cartão de Crédito" &&(parcelas === "" || numeroCartao === "" || cvv==="" || expirationDate==="" || nomeCartao==="")}>Finalizar compra</SCFinalizarButon>
         <SCFinalizarButon onClick={()=>navigate("/catalogo")} >Cancelar</SCFinalizarButon>
       </SCButtonContainer>
     </SCcheckoutPage>
@@ -235,23 +280,6 @@ const SCPagamentoInnerBox3 = styled.div`
   justify-content:flex-start;
   box-shadow: 0px 4px 4px 0px #00000026;
 `
-const SCPagamentoInnerBox2 = styled.div`
-  margin-top: 80px;
-  box-shadow: 0px 4px 4px 0px #00000026;
-  width:100%;
-  height: 100%;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  justify-content:flex-start;
-`
-const SCHeaderSpan2 = styled.span`
-  font-size:26px;
-  font-weight:600;
-  color:rgb(61, 61, 61);
-  margin-bottom:25px;
-  margin-right:50px;
-`
 const SCHeaderSpan = styled.span`
   font-size:40px;
   font-weight:700;
@@ -264,11 +292,6 @@ const SCHeaderSpan3 = styled.span`
   color:rgb(61, 61, 61);
   margin-bottom:25px;
   margin-top:70px;
-`
-const SCValorSpan = styled.span`
-font-size:40px;
-font-weight:700;
-color:#f87b09;
 `
 const SCButtonContainer = styled.div`
   display:flex;

@@ -34,9 +34,9 @@ export default function Carrinho() {
 
     const config = {
       headers: {
-          Authorization: "Bearer " + token
+        Authorization: "Bearer " + token
       }
-  }
+    }
 
     axios.get(`${import.meta.env.VITE_API_URL}/carrinho`, config)
 
@@ -45,6 +45,7 @@ export default function Carrinho() {
         const carrinhodecompras = response.data;
         setValorCarrinho(carrinhodecompras.length);
         setGetCarrinho(response.data)
+        console.log(response.data, "get aqui please");
 
       })
 
@@ -64,13 +65,13 @@ export default function Carrinho() {
 
       const token = localStorage.getItem("token");
 
-    const config = {
-      headers: {
+      const config = {
+        headers: {
           Authorization: "Bearer " + token
+        }
       }
-  }
 
-      axios.delete(`${import.meta.env.VITE_API_URL}/carrinho/${produtoId}`,config)
+      axios.delete(`${import.meta.env.VITE_API_URL}/carrinho/${produtoId}`, config)
 
         .then((response) => {
 
@@ -91,11 +92,11 @@ export default function Carrinho() {
 
       const token = localStorage.getItem("token");
 
-    const config = {
-      headers: {
+      const config = {
+        headers: {
           Authorization: "Bearer " + token
+        }
       }
-  }
 
       axios.delete(`${import.meta.env.VITE_API_URL}/carrinho`, config)
 
@@ -154,7 +155,15 @@ export default function Carrinho() {
           <Total>Total:{total}</Total>
           <ButtonEsvaziar disabled={getCarrinho.length === 0} onClick={() => deleteTudo()}>Esvaziar Carrinho</ButtonEsvaziar>
           <ButtonContinuarComprando onClick={() => navigate("/catalogo")}>Retorne ao Menu de Produtos</ButtonContinuarComprando>
-          <ButtonConfirmar disabled={getCarrinho.length === 0} onClick={()=>navigate("/checkout")}>Ir para Pagamento</ButtonConfirmar>
+          <ButtonConfirmar
+            disabled={getCarrinho.length === 0}
+            onClick={() => {
+              navigate("/checkout");
+              atualizaValordoCarrinho();
+            }}
+          >
+            Ir para Pagamento
+          </ButtonConfirmar>
         </FinalizaCompra>
 
       </ContainerGrande>
@@ -244,8 +253,8 @@ const ButtonExcluir = styled.button`
 const ButtonConfirmar = styled.button`
   width:300px;
   background-image: linear-gradient(to left, #8e44ad, #2a7db4);
-  cursor:${(props)=> props.disabled? "not-allowed":"pointer"};
-  opacity:${(props) => props.disabled? "0.6": "1"};
+  cursor:${(props) => props.disabled ? "not-allowed" : "pointer"};
+  opacity:${(props) => props.disabled ? "0.6" : "1"};
 `;
 
 const FinalizaCompra = styled.div`
@@ -301,8 +310,8 @@ const ExcluirProduto = styled.h1`
 const ButtonEsvaziar = styled.button`
   width: 200px;
   background-image: linear-gradient(to left, #8e44ad, #2a7db4);
-  cursor:${(props)=> props.disabled? "not-allowed":"pointer"};
-  opacity:${(props) => props.disabled? "0.6": "1"};
+  cursor:${(props) => props.disabled ? "not-allowed" : "pointer"};
+  opacity:${(props) => props.disabled ? "0.6" : "1"};
 `;
 const ButtonContinuarComprando = styled.button`
   width: 300px;

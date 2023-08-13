@@ -2,34 +2,125 @@ import styled from "styled-components";
 import { useContext, useEffect } from "react";
 import { LoginContext } from "../contexts/LoginContext";
 import { useNavigate } from "react-router-dom";
+import { useState, useCallback } from "react";
+import axios from "axios";
 
 export default function ProdutosPorUser() {
 
   const navigate = useNavigate();
 
-  const {listadeProdutosDoUser, isLoged } = useContext(LoginContext);
+  const [checkboxStates, setCheckboxStates] = useState({});
+
+  console.log(checkboxStates);
+
+  const { listadeProdutosDoUser, isLoged } = useContext(LoginContext);
 
   useEffect(() => {
     isLoged();
-  })
+    fetchCheckboxStatesFromServer(); // Carrega os dados iniciais
+  }, []);
+
+  const fetchCheckboxStatesFromServer = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+  
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/check`, config);
+      setCheckboxStates(response.data); // Atualiza o estado local com os dados do servidor
+    } catch (error) {
+      console.error("Erro ao carregar os estados dos checkboxes:", error);
+    }
+  };
+  
+
+  const handleCheckboxChange = useCallback(async (id) => {
+    const updatedCheckboxStates = {
+      ...checkboxStates,
+      [id]: !checkboxStates[id], // Inverte o estado do checkbox específico
+    };
+
+    setCheckboxStates(updatedCheckboxStates);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const config = {
+        headers: {
+            Authorization: "Bearer " + token
+        }
+    }
+
+    const obj = {
+      productId: id,
+      isChecked: updatedCheckboxStates[id]
+    };
+
+      await axios.post(`${import.meta.env.VITE_API_URL}/check`, obj, config);
+
+      console.log(`Produto com ID ${id} marcado/desmarcado no servidor`);
+    } catch (error) {
+      console.error("Erro ao salvar o estado do checkbox:", error);
+    }
+  }, [checkboxStates]);
+
+  const verifyProductExistence = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+  
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token
+        }
+      };
+  
+      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/deletaproduto/${id}`, config);
+  
+      console.log("Produto deletado com sucesso!");
+  
+    } catch (error) {
+      // Trate o erro aqui, se necessário
+      console.error(error);
+    }
+  };  
 
 
-    return (
-        <ListagemdeProdutos>
-        {listadeProdutosDoUser.map((produto) => (
-
-          <ListItemContainer key={produto.id} onClick={() => navigate(`/item/${produto.id}`)}>
-            <ProductImage src={produto.url} alt="SmartPhone" />
-            <ProductName>{produto.nomeproduto}</ProductName>
-            <ProductValor>{(parseFloat(produto.valor.replace(/\./g, '').replace(',', '.')) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ProductValor>
-            
-          </ListItemContainer>
-
-        )
+  return (
+    <ListagemdeProdutos>
+    {listadeProdutosDoUser.map((produto, index) => (
+      <ListItemContainer key={produto.id}>
+        {checkboxStates[produto.id] ===true ? (
+          <ProductName>Vendido!</ProductName>
+        ) : (
+          <div>
+            <ProductName>Não está disponível?</ProductName>
+            <input
+              type="checkbox"
+              checked={checkboxStates[produto.id] || false}
+              onChange={() => {
+                handleCheckboxChange(produto.id);
+                verifyProductExistence(produto.id);
+              }}
+            />
+          </div>
         )}
-      </ListagemdeProdutos>
 
-    )
+        <ProductImage src={produto.url} alt="SmartPhone" />
+        <ProductName>{produto.nomeproduto}</ProductName>
+        <ProductValor>
+          {(parseFloat(produto.valor.replace(/\./g, "").replace(",", ".")) / 100).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </ProductValor>
+      </ListItemContainer>
+    ))}
+  </ListagemdeProdutos>
+
+  )
 }
 
 const ListagemdeProdutos = styled.div`
@@ -55,6 +146,12 @@ const ListItemContainer = styled.li`
   box-shadow: 0px 4px 4px 0px #00000026;
   margin: 15px;
   padding: 10px;
+
+  div{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
 `
 
 const ProductImage = styled.img`

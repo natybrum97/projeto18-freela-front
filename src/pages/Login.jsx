@@ -23,11 +23,8 @@ export default function Login() {
 
     promise.then(resposta => {
       localStorage.setItem("token", resposta.data.token);
-      console.log(localStorage.getItem("token"))
       localStorage.setItem("user", resposta.data.nome);
       localStorage.setItem("userid", resposta.data.id);
-      console.log(resposta.data)
-      console.log(resposta.data, "lista");
       navigate("/catalogo");
 
     });

@@ -18,6 +18,9 @@ export function LoginProvider({ children }) {
     const [valorCarrinho, setValorCarrinho] = useState([]);
     const [total, setTotal] = useState(0);
     const [totalCalculo, setTotalCalculo] = useState(0);
+    const [getCopia, setGetCopia] = useState([]);
+    const [apagarIds, setApagarIds] = useState([]);
+
 
 const isLoged = () => {
     let token = localStorage.getItem("token");
@@ -38,7 +41,7 @@ const logout = () => {
 }
 
     return (
-        <LoginContext.Provider value={{totalCalculo, setTotalCalculo,listadeProdutosDoUser, setListadeProdutosDoUser, total, setTotal, valorCarrinho, setValorCarrinho ,getCarrinho, setGetCarrinho, produto, setProduto, carrinho, setCarrinho, isLoged, logout, listadeProdutos, setListadeProdutos,token, setToken, listadeProdutosPorCategoria, setListadeProdutosPorCategoria}}>
+        <LoginContext.Provider value={{apagarIds, setApagarIds, getCopia, setGetCopia, totalCalculo, setTotalCalculo,listadeProdutosDoUser, setListadeProdutosDoUser, total, setTotal, valorCarrinho, setValorCarrinho ,getCarrinho, setGetCarrinho, produto, setProduto, carrinho, setCarrinho, isLoged, logout, listadeProdutos, setListadeProdutos,token, setToken, listadeProdutosPorCategoria, setListadeProdutosPorCategoria}}>
             {children}
         </LoginContext.Provider>
     )
