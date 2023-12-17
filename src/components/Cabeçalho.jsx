@@ -8,9 +8,7 @@ import axios from "axios";
 import { useEffect } from "react";
 
 export default function Cabeçalho() {
-
   const navigate = useNavigate();
-
   const { isLoged, valorCarrinho, setValorCarrinho, logout, setGetCarrinho } = useContext(LoginContext);
 
   useEffect(() => {
@@ -18,9 +16,7 @@ export default function Cabeçalho() {
   })
 
   function irParaCarrinho() {
-
     const token = localStorage.getItem("token");
-
     const config = {
       headers: {
         Authorization: "Bearer " + token
@@ -28,23 +24,17 @@ export default function Cabeçalho() {
     }
 
     axios.get(`${import.meta.env.VITE_API_URL}/carrinho`, config)
-
       .then((response) => {
-
-        console.log(response.data, "essa é a resposta certa");
         setGetCarrinho(response.data);
         navigate("/carrinho");
-
       })
       .catch((error) => {
         console.error(error);
       });
-  };
+  }
 
   useEffect(() => {
-    
     const token = localStorage.getItem("token");
-
     const config = {
       headers: {
         Authorization: "Bearer " + token
@@ -52,47 +42,27 @@ export default function Cabeçalho() {
     }
 
     axios.get(`${import.meta.env.VITE_API_URL}/carrinho`, config)
-
       .then((response) => {
         const carrinhodecompras = response.data;
-        console.log(carrinhodecompras.length, "opaaaaaa");
         setValorCarrinho(carrinhodecompras.length);
-
       })
-
       .catch((error) => {
-
         console.error(error);
-
       });
-
   }, []);
-
-
 
   return (
     <PageContainerTopo>
-
-      <MessageUser>Bem-vindo(a) {localStorage.getItem("user")}! </MessageUser>
-
+      <MessageUser>Bem-vindo(a)! </MessageUser>
       <Logo onClick={() => navigate("/catalogo")}>Me<span>Cansei!</span></Logo>
-
       <ContainerCarrinho>
-
         <CarrinhoeContagem>
-
           <CarrinhoImage src={imageCarrinho} onClick={() => irParaCarrinho()} alt="Carrinho de Compras" />
           <QuantidadeCarrinho>{valorCarrinho}</QuantidadeCarrinho>
-
         </CarrinhoeContagem>
-
         <LogoutImage src={imageLogout} alt="Logout" onClick={() => logout()} />
-
       </ContainerCarrinho>
-
-
     </PageContainerTopo>
-
   )
 }
 

@@ -5,11 +5,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function FiltroPorCategoria() {
-
     const navigate = useNavigate();
-
     const { isLoged, setListadeProdutosPorCategoria, setProduto, setListadeProdutosDoUser } = useContext(LoginContext);
-
     const [showOptions, setShowOptions] = useState(false);
 
     const handleIconMouseEnter = () => {
@@ -25,9 +22,7 @@ export default function FiltroPorCategoria() {
     })
 
     function categoriaProdutos(categoria) {
-
         const token = localStorage.getItem("token");
-
         const config = {
             headers: {
                 Authorization: "Bearer " + token
@@ -35,29 +30,18 @@ export default function FiltroPorCategoria() {
         }
 
         const promise = axios.get(`${import.meta.env.VITE_API_URL}/produtos/categoria/${categoria}`, config);
-
         promise.then((resposta) => {
-
             setListadeProdutosPorCategoria(resposta.data);
-            console.log(resposta.data, "listaAtual");
             setProduto([]);
             navigate(`/produtos/categoria/${categoria}`);
-
         })
-
         promise.catch((erro) => {
-
             console.log(erro.response.data);
-
         })
-
-
     }
 
     function usuarioProdutos() {
-
         const token = localStorage.getItem("token");
-
         const config = {
             headers: {
                 Authorization: "Bearer " + token
@@ -65,24 +49,14 @@ export default function FiltroPorCategoria() {
         }
 
         const promise = axios.get(`${import.meta.env.VITE_API_URL}/catalogoUser`, config);
-
         promise.then((resposta) => {
-
             setListadeProdutosDoUser(resposta.data);
-
-            console.log(resposta.data, "listaUser");
-
             navigate("/produtos/user");
-
         })
 
         promise.catch((erro) => {
-
             console.log(erro.response.data);
-
         })
-
-
     }
 
     return (
@@ -100,7 +74,6 @@ export default function FiltroPorCategoria() {
                 </OptionsContainer>
             )}
         </PageContainerTopo>
-
     )
 }
 

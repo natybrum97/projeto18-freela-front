@@ -1,32 +1,25 @@
-import { Link, useNavigate } from "react-router-dom"
-import styled from "styled-components"
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import { useState } from "react";
 import axios from "axios";
-import FreelaLogo from "../components/FreelaLogo"
+import FreelaLogo from "../components/FreelaLogo";
 import { EndereçoContext } from "../contexts/EndereçoContext";
 import { useContext } from "react";
 
 export default function SignUpPage() {
-
   const navigate = useNavigate();
-
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmar, setConfirmar] = useState('');
-
   const { telefone, setTelefone, cep, setCep, rua, setRua, numeroCasa, setNumeroCasa, state, setState, cidade, setCidade, bairro, setBairro, cpf, setCPF } = useContext(EndereçoContext);
 
   function formatCPF(value) {
-    // Remove todos os caracteres não numéricos
     const numericValue = value.replace(/\D/g, "");
-
-    // Aplica a máscara de CPF (###.###.###-##)
     let formattedValue = numericValue.replace(
       /(\d{3})(\d{3})(\d{3})(\d{2})/,
       "$1.$2.$3-$4"
     );
-
     return formattedValue;
   }
 
@@ -36,72 +29,56 @@ export default function SignUpPage() {
     setCPF(formattedValue);
   }
 
-
   const brazilianStates = [
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
     "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
     "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
   ];
 
+  const obj = {
+    name,
+    email,
+    telefone,
+    cep,
+    rua,
+    numeroCasa,
+    state,
+    cidade,
+    bairro,
+    cpf,
+    password: senha,
+    confirmPassword: confirmar
+  }
 
   function enviarInfos(e) {
     e.preventDefault();
-
-    const obj = {
-      name: name,
-      email: email,
-      telefone: telefone,
-      cep: cep,
-      rua: rua,
-      numeroCasa: numeroCasa,
-      state: state,
-      cidade: cidade,
-      bairro: bairro,
-      cpf: cpf,
-      password: senha,
-      confirmPassword: confirmar
-    }
-
     if (senha === confirmar) {
-
       const promise = axios.post(`${import.meta.env.VITE_API_URL}/signup`, obj);
-
       promise.then(resposta => {
-
         alert('Você foi cadastrado com sucesso!')
-        console.log(resposta.data);
         navigate("/");
-
       });
-
       promise.catch(erro => {
-
         console.log(erro.response.data);
         alert(erro.response.data.message || erro.response.data);
-
       });
     } else {
       alert("As senhas disponibilizadas não são iguais!")
     }
-
-
   }
 
   return (
     <SingUpContainer>
       <form onSubmit={enviarInfos}>
-
         <FreelaLogo />
-
-        <Input2 placeholder="Nome" type="text" id="nome" value={name} onChange={(e) => setName(e.target.value)} required />
+        <FirstInputWithDifferentStyle placeholder="Nome" type="text" id="nome" value={name} onChange={(e) => setName(e.target.value)} required />
         <input placeholder="E-mail" type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <input placeholder="Telefone" type="tel" id="telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} required />
         <input placeholder="CEP" type="text" id="cep" value={cep} onChange={(e) => setCep(e.target.value)} minLength="8" maxLength="8" required />
         <input placeholder="Rua" type="text" id="rua" value={rua} onChange={(e) => setRua(e.target.value)} required />
         <input placeholder="Por favor, insira o número da sua casa" type="text" id="numerocasa" value={numeroCasa} onChange={(e) => setNumeroCasa(e.target.value)} required />
-
         <ContainerMenor>
-          <Input3 placeholder="Cidade" type="text" id="cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} required />
+          <SecondInputWithDifferentStyle placeholder="Cidade" type="text" id="cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} required />
           <Select
             value={state}
             onChange={(e) => setState(e.target.value)}
@@ -114,17 +91,13 @@ export default function SignUpPage() {
               </option>
             ))}
           </Select>
-
         </ContainerMenor>
-
         <input placeholder="Bairro" type="text" id="bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} required />
         <input type="text" value={cpf} onChange={handleCPFChange} placeholder="000.000.000-00" minLength="14" maxLength="14" required />
         <input placeholder="Senha" type="password" autoComplete="new-password" id="senha" value={senha} onChange={(e) => setSenha(e.target.value)} minLength="3" required />
         <input placeholder="Confirme a senha" type="password" autoComplete="new-password" id="confirmar" value={confirmar} onChange={(e) => setConfirmar(e.target.value)} minLength="3" required />
         <button type="submit">Cadastrar</button>
-
       </form>
-
       <Link to='/'>
         <h2>Já tem uma conta? Entre agora!</h2>
       </Link>
@@ -154,11 +127,11 @@ const SingUpContainer = styled.section`
   }
 `
 
-const Input2 = styled.input`
+const FirstInputWithDifferentStyle = styled.input`
   margin-top:250px;
 `
 
-const Input3 = styled.input`
+const SecondInputWithDifferentStyle = styled.input`
   width:50%;
 `
 const ContainerMenor = styled.div`
@@ -178,8 +151,8 @@ const Select = styled.select`
   font-size: 20px;
 
   option {
-    background-color: #f7f7f7; /* Cor de fundo das opções */
-    color: #CCCCCC; /* Cor do texto das opções */
-    font-size: 14px; /* Tamanho da fonte das opções */
+    background-color: #f7f7f7; 
+    color: #CCCCCC; 
+    font-size: 14px; 
   }
 `;

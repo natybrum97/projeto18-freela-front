@@ -4,17 +4,14 @@ import Logo from "../components/FreelaLogo";
 import verificado from "../assets/verificado.png";
 
 export default function SignUpPage() {
-
   const navigate = useNavigate();
 
   return (
     <SingUpContainer>
-    
-        <Logo />
-        <Image src={verificado} alt="Compra realizada com Sucesso!" />
-        <Titulo>Compra realizada com Sucesso!</Titulo>
-        <button onClick={()=>navigate("/catalogo")}>Voltar para Catálogo de Produtos</button>
-
+      <Logo />
+      <Image src={verificado} alt="Compra realizada com Sucesso!" />
+      <Titulo>Compra realizada com Sucesso!</Titulo>
+      <button onClick={() => navigate("/catalogo")}>Voltar para Catálogo de Produtos</button>
     </SingUpContainer>
   )
 }

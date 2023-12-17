@@ -6,54 +6,39 @@ import { useNavigate } from "react-router-dom";
 
 export default function ListadeProdutos() {
   const navigate = useNavigate();
-  const {listadeProdutos, setListadeProdutos, isLoged, setProduto } = useContext(LoginContext);
+  const { listadeProdutos, setListadeProdutos, isLoged, setProduto } = useContext(LoginContext);
 
   useEffect(() => {
     isLoged();
-
     const token = localStorage.getItem("token");
-
     const config = {
       headers: {
-          Authorization: "Bearer " + token
+        Authorization: "Bearer " + token
       }
-  }
+    }
 
     const promise = axios.get(`${import.meta.env.VITE_API_URL}/catalogo`, config);
-
     promise.then((resposta) => {
-
       setListadeProdutos(resposta.data);
-      console.log(resposta.data, "lista");
       setProduto([])
-
     })
-
     promise.catch((erro) => {
-
       console.log(erro.response.data);
-
     })
-
   }, []);
 
-    return (
-        <ListagemdeProdutos>
-        {listadeProdutos.map((produto) => (
-
-          <ListItemContainer key={produto.id} onClick={() => navigate(`/item/${produto.id}`)}>
-            <ProductImage src={produto.url} alt="SmartPhone" />
-            <ProductName>{produto.nomeproduto}</ProductName>
-            <ProductValor>{(parseFloat(produto.valor.replace(/\./g, '').replace(',', '.')) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ProductValor>
-
-            
-          </ListItemContainer>
-
-        )
-        )}
-      </ListagemdeProdutos>
-
-    )
+  return (
+    <ListagemdeProdutos>
+      {listadeProdutos.map((produto) => (
+        <ListItemContainer key={produto.id} onClick={() => navigate(`/item/${produto.id}`)}>
+          <ProductImage src={produto.url} alt="SmartPhone" />
+          <ProductName>{produto.nomeproduto}</ProductName>
+          <ProductValor>{(parseFloat(produto.valor.replace(/\./g, '').replace(',', '.')) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ProductValor>
+        </ListItemContainer>
+      )
+      )}
+    </ListagemdeProdutos>
+  )
 }
 
 const ListagemdeProdutos = styled.div`
@@ -62,7 +47,7 @@ const ListagemdeProdutos = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content:flex-start;
+  justify-content:center;
   color: #000000;
   background-color: #CCCCCC;
   margin-top: 190px;

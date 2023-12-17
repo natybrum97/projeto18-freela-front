@@ -6,7 +6,6 @@ import FiltroPorCategoria from "../components/FiltroPorCategoria";
 import ProdutosPorUser from "../components/ProdutosPorUser";
 
 export default function CatalogoPorUser() {
-
   const { isLoged } = useContext(LoginContext);
 
   useEffect(() => {
@@ -15,17 +14,12 @@ export default function CatalogoPorUser() {
 
   return (
     <ContainerGrandeProdutos>
-
       <Cabeçalho />
-
       <FiltroPorCategoria />
-
       <ProdutosPorUser />
-
     </ContainerGrandeProdutos>
   )
 }
-
 
 const ContainerGrandeProdutos = styled.div`
   height:auto;

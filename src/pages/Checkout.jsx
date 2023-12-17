@@ -18,80 +18,59 @@ export default function Checkout() {
 
   useEffect(() => {
     isLoged();
-
     const token = localStorage.getItem("token");
-
     const config = {
       headers: {
-          Authorization: "Bearer " + token
+        Authorization: "Bearer " + token
       }
-  }
+    }
 
     axios.get(`${import.meta.env.VITE_API_URL}/carrinho`, config)
-
       .then((response) => {
-
         const carrinhodecompras = response.data;
-        setGetCarrinho(response.data)
-        console.log(response.data, "get aqui please");
-
+        setGetCarrinho(response.data);
       })
-
       .catch((error) => {
-
         console.error(error);
-
       });
   }, []);
 
   function apagarProdutosAoComprar() {
-    const token = localStorage.getItem("token"); // Supondo que você tenha o token salvo no localStorage
+    const token = localStorage.getItem("token");
     const idsParaExcluir = getCarrinho.map((produto) => produto.idProduto);
-  
     const config = {
       headers: {
         Authorization: `Bearer ${token}`
       },
       data: { ids: idsParaExcluir }
     };
-  
-    // Fazendo a requisição para o servidor usando o Axios com a configuração do cabeçalho
-    axios.delete(`${import.meta.env.VITE_API_URL}/excluir`,config)
-    .then((response) => {
-      console.log('Resultado da exclusão:', response.data);
-      setValorCarrinho(0);
-      navigate("/confirmacao");
-    })
-    .catch((error) => {
-      console.error('Erro na requisição:', error);
-    });
+    axios.delete(`${import.meta.env.VITE_API_URL}/excluir`, config)
+      .then((response) => {
+        setValorCarrinho(0);
+        navigate("/confirmacao");
+      })
+      .catch((error) => {
+        console.error('Erro na requisição:', error);
+      });
   }
 
   function atualizaCheckDeAcordoComIds() {
-    const token = localStorage.getItem("token"); // Supondo que você tenha o token salvo no localStorage
+    const token = localStorage.getItem("token");
     const idsParaExcluir = getCarrinho.map((produto) => produto.idProduto);
-
-    console.log(getCarrinho, "get");
-    console.log(idsParaExcluir, "ids");
-
     const config = {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     };
 
     axios.put(`${import.meta.env.VITE_API_URL}/check`, { ids: idsParaExcluir }, config)
-        .then(response => {
-            console.log('Atualização bem-sucedida:', response.data);
-            navigate("/confirmacao");
-        })
-        .catch(error => {
-            console.error('Erro ao atualizar:', error);
-        });
-}
-
-  
-
+      .then(response => {
+        navigate("/confirmacao");
+      })
+      .catch(error => {
+        console.error('Erro ao atualizar:', error);
+      });
+  }
 
   const handleNumParcelasChange = (e) => {
     setNumParcelas(parseInt(e.target.value, 10));
@@ -107,26 +86,16 @@ export default function Checkout() {
   };
 
   const formatCVV = (cvv) => {
-    // Remove espaços em branco e caracteres não numéricos
     const cleanedCVV = cvv.replace(/\D/g, '');
-
-    // Limita o CVV a três dígitos
     const formattedCVV = cleanedCVV.slice(0, 3);
-
     return formattedCVV;
   };
 
   const formatExpirationDate = (expirationDate) => {
-    // Remove espaços em branco e caracteres não numéricos
     const cleanedDate = expirationDate.replace(/\D/g, '');
-
-    // Separa os dígitos em mês e ano
     const month = cleanedDate.slice(0, 2);
     const year = cleanedDate.slice(2, 4);
-
-    // Formata a data no formato MM/AA
     const formattedDate = `${month}/${year}`;
-    console.log(formattedDate)
     return formattedDate;
   };
 
@@ -139,18 +108,11 @@ export default function Checkout() {
     setParcelas("1");
   }
 
-  function finalizarCompra() {
-    const confirmacao = window.confirm("Tem certeza de que deseja finalizar a compra?");
-
-    if (!confirmacao) return
-
-    const userid = localStorage.getItem("userid");
-
+  const userid = localStorage.getItem("userid");
     let postObj;
-   
-    if (payMethod === "Boleto") {
 
-       postObj = {
+    if (payMethod === "Boleto") {
+      postObj = {
         carrinho: JSON.stringify(getCarrinho),
         userid,
         valor: totalCalculo,
@@ -166,13 +128,15 @@ export default function Checkout() {
         tipo: payMethod
       }
     }
-    console.log(postObj)
+
+  function finalizarCompra() {
+    const confirmacao = window.confirm("Tem certeza de que deseja finalizar a compra?");
+    if (!confirmacao) return
 
     const promise = axios.post(`${import.meta.env.VITE_API_URL}/compra`, postObj);
     promise.then(resposta => {
       navigate("/confirmacao");
     });
-
     promise.catch(erro => {
       console.log(erro);
       alert(erro.response.data)
@@ -187,9 +151,7 @@ export default function Checkout() {
 
   return (
     <SCcheckoutPage>
-
       <Logo />
-
       <SCPagamentoInnerBox3>
         <SCHeaderSpan> Forma de pagamento</SCHeaderSpan>
         <SCButtonContainer>
@@ -197,12 +159,10 @@ export default function Checkout() {
           <SCPgmntButon disabled={payMethod === "Cartão de Crédito"} selected={payMethod === "Cartão de Crédito"} onClick={() => setPayMethod("Cartão de Crédito")}>Cartão de Crédito</SCPgmntButon>
         </SCButtonContainer>
       </SCPagamentoInnerBox3>
-
       {payMethod === "Boleto" ?
         <SCBaixarBoletoSpan onClick={() => alert("Iniciando o download, em caso de problemas clique novamente no link")}>Clique aqui para baixar seu Boleto</SCBaixarBoletoSpan>
         :
         <SCPagamentoContainer>
-          
           <SCPagamentoInnerBox4>
             <SCHeaderSpan3> Parcele em até 12x sem juros!</SCHeaderSpan3>
             <input required placeholder="Nome no Cartão" type="text" id="nomecartao" value={nomeCartao} onChange={(e) => setNomeCartao(e.target.value)} />
@@ -216,19 +176,19 @@ export default function Checkout() {
             </select>
             <input required placeholder="CVV" type="text" value={formatCVV(cvv)} onChange={(e) => setCVV(e.target.value)} maxLength="3" />
             <input required
-        type="text"
-        id="expirationDate"
-        value={expirationDate}
-        onChange={handleExpirationDateChange}
-        maxLength="5"
-        placeholder="MM/AA"
-      />
+              type="text"
+              id="expirationDate"
+              value={expirationDate}
+              onChange={handleExpirationDateChange}
+              maxLength="5"
+              placeholder="MM/AA"
+            />
           </SCPagamentoInnerBox4>
         </SCPagamentoContainer>
       }
       <SCButtonContainer>
-        <SCFinalizarButon onClick={handleFinalizarTudo} disabled={payMethod==="Cartão de Crédito" &&(parcelas === "" || numeroCartao === "" || cvv==="" || expirationDate==="" || nomeCartao==="")}>Finalizar compra</SCFinalizarButon>
-        <SCFinalizarButon onClick={()=>navigate("/catalogo")} >Cancelar</SCFinalizarButon>
+        <SCFinalizarButon onClick={handleFinalizarTudo} disabled={payMethod === "Cartão de Crédito" && (parcelas === "" || numeroCartao === "" || cvv === "" || expirationDate === "" || nomeCartao === "")}>Finalizar compra</SCFinalizarButon>
+        <SCFinalizarButon onClick={() => navigate("/catalogo")} >Cancelar</SCFinalizarButon>
       </SCButtonContainer>
     </SCcheckoutPage>
   )

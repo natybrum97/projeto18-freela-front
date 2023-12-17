@@ -2,13 +2,9 @@ import styled from "styled-components"
 
 export default function FastShopLogo() {
     return (
-        
         <PageContainerTopo>
-
             <LogoFreela>Me<span>Cansei!</span></LogoFreela>
-
         </PageContainerTopo>
-
     )
 }
 

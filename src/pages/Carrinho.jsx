@@ -6,32 +6,22 @@ import Cabeçalho from "../components/Cabeçalho";
 import { LoginContext } from "../contexts/LoginContext";
 
 export default function Carrinho() {
-
   const navigate = useNavigate();
-
   const { isLoged, getCarrinho, setGetCarrinho, setValorCarrinho, total, setTotal, setTotalCalculo } = useContext(LoginContext);
 
   useEffect(() => {
     isLoged();
-
     let totalCompra = 0;
-
     getCarrinho.forEach(produto => {
       totalCompra += parseFloat(produto.valor);
     });
-
     const saldoFinal = (Math.abs(totalCompra) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
     setTotal(saldoFinal);
-
     setTotalCalculo(totalCompra);
-
   }, [getCarrinho]);
 
   function atualizaValordoCarrinho() {
-
     const token = localStorage.getItem("token");
-
     const config = {
       headers: {
         Authorization: "Bearer " + token
@@ -39,118 +29,78 @@ export default function Carrinho() {
     }
 
     axios.get(`${import.meta.env.VITE_API_URL}/carrinho`, config)
-
       .then((response) => {
-
         const carrinhodecompras = response.data;
         setValorCarrinho(carrinhodecompras.length);
-        setGetCarrinho(response.data)
-        console.log(response.data, "get aqui please");
-
+        setGetCarrinho(response.data);
       })
-
       .catch((error) => {
-
         console.error(error);
-
       });
-
   }
 
   function deleteItem(produtoId) {
-
     const confirmacao = window.confirm("Tem certeza de que deseja excluir?");
-
     if (confirmacao) {
-
       const token = localStorage.getItem("token");
-
       const config = {
         headers: {
           Authorization: "Bearer " + token
         }
       }
-
       axios.delete(`${import.meta.env.VITE_API_URL}/carrinho/${produtoId}`, config)
-
         .then((response) => {
-
           atualizaValordoCarrinho();
-
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  };
+  }
 
   function deleteTudo() {
-
     const confirmacao = window.confirm("Tem certeza de que deseja excluir?");
-
     if (confirmacao) {
-
       const token = localStorage.getItem("token");
-
       const config = {
         headers: {
           Authorization: "Bearer " + token
         }
       }
-
       axios.delete(`${import.meta.env.VITE_API_URL}/carrinho`, config)
-
         .then((response) => {
-
           atualizaValordoCarrinho();
-
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  };
+  }
 
   return (
     <>
       <Cabeçalho />
-
       <ContainerGrande>
-
         <Titulo>Meu Carrinho</Titulo>
-
         <TopoTitulos>
-
           <IconeProduto>Ícone</IconeProduto>
           <NomeProduto>Nome do Produto</NomeProduto>
           <PreçoProduto>Preço</PreçoProduto>
           <ExcluirProduto>Excluir</ExcluirProduto>
-
-
         </TopoTitulos>
-
         <ContainerMenor>
-
           <Lista>
-
             {getCarrinho.map((produto) => (
-
               <ListItemContainer key={produto.id}>
-
                 <ImageProduct src={produto.url} alt="url" />
                 <TextName>{produto.nome}</TextName>
                 <TextValor>{(parseFloat(produto.valor.replace(/\./g, '').replace(',', '.')) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TextValor>
                 <ButtonExcluir onClick={() => deleteItem(produto.id)}>Excluir</ButtonExcluir>
-
               </ListItemContainer>
-
             )
             )}
           </Lista>
-
-
         </ContainerMenor>
-
         <FinalizaCompra>
           <Total>Total:{total}</Total>
           <ButtonEsvaziar disabled={getCarrinho.length === 0} onClick={() => deleteTudo()}>Esvaziar Carrinho</ButtonEsvaziar>
@@ -165,7 +115,6 @@ export default function Carrinho() {
             Ir para Pagamento
           </ButtonConfirmar>
         </FinalizaCompra>
-
       </ContainerGrande>
     </>
   )

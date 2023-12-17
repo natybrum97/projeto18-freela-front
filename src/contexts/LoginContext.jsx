@@ -5,9 +5,7 @@ import axios from "axios";
 export const LoginContext = createContext();
 
 export function LoginProvider({ children }) {
-
     const navigate = useNavigate();
-
     const [listadeProdutos, setListadeProdutos] = useState([]);
     const [listadeProdutosPorCategoria, setListadeProdutosPorCategoria] = useState([]);
     const [listadeProdutosDoUser, setListadeProdutosDoUser] = useState([]);
@@ -21,27 +19,26 @@ export function LoginProvider({ children }) {
     const [getCopia, setGetCopia] = useState([]);
     const [apagarIds, setApagarIds] = useState([]);
 
+    const isLoged = () => {
+        let token = localStorage.getItem("token");
 
-const isLoged = () => {
-    let token = localStorage.getItem("token");
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = token;
+            setToken(token);
+        } else {
+            navigate("/");
+        }
+    }
 
-    if(token){
-        axios.defaults.headers.common['Authorization'] = token;
-        setToken(token);
-    } else {
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        axios.defaults.headers.common['Authorization'] = "";
         navigate("/");
     }
-}
-
-const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    axios.defaults.headers.common['Authorization'] = "";
-    navigate("/");
-}
 
     return (
-        <LoginContext.Provider value={{apagarIds, setApagarIds, getCopia, setGetCopia, totalCalculo, setTotalCalculo,listadeProdutosDoUser, setListadeProdutosDoUser, total, setTotal, valorCarrinho, setValorCarrinho ,getCarrinho, setGetCarrinho, produto, setProduto, carrinho, setCarrinho, isLoged, logout, listadeProdutos, setListadeProdutos,token, setToken, listadeProdutosPorCategoria, setListadeProdutosPorCategoria}}>
+        <LoginContext.Provider value={{ apagarIds, setApagarIds, getCopia, setGetCopia, totalCalculo, setTotalCalculo, listadeProdutosDoUser, setListadeProdutosDoUser, total, setTotal, valorCarrinho, setValorCarrinho, getCarrinho, setGetCarrinho, produto, setProduto, carrinho, setCarrinho, isLoged, logout, listadeProdutos, setListadeProdutos, token, setToken, listadeProdutosPorCategoria, setListadeProdutosPorCategoria }}>
             {children}
         </LoginContext.Provider>
     )

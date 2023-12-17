@@ -1,23 +1,16 @@
 import styled from "styled-components";
 import { useContext, useEffect } from "react";
 import { LoginContext } from "../contexts/LoginContext";
-import { useNavigate } from "react-router-dom";
 import { useState, useCallback } from "react";
 import axios from "axios";
 
 export default function ProdutosPorUser() {
-
-  const navigate = useNavigate();
-
   const [checkboxStates, setCheckboxStates] = useState({});
-
-  console.log(checkboxStates);
-
   const { listadeProdutosDoUser, isLoged } = useContext(LoginContext);
 
   useEffect(() => {
     isLoged();
-    fetchCheckboxStatesFromServer(); // Carrega os dados iniciais
+    fetchCheckboxStatesFromServer();
   }, []);
 
   const fetchCheckboxStatesFromServer = async () => {
@@ -28,40 +21,29 @@ export default function ProdutosPorUser() {
           Authorization: "Bearer " + token,
         },
       };
-  
+
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/check`, config);
-      setCheckboxStates(response.data); // Atualiza o estado local com os dados do servidor
+      setCheckboxStates(response.data);
     } catch (error) {
       console.error("Erro ao carregar os estados dos checkboxes:", error);
     }
   };
-  
 
   const handleCheckboxChange = useCallback(async (id) => {
     const updatedCheckboxStates = {
       ...checkboxStates,
-      [id]: !checkboxStates[id], // Inverte o estado do checkbox específico
+      [id]: !checkboxStates[id],
     };
-
     setCheckboxStates(updatedCheckboxStates);
-
     try {
       const token = localStorage.getItem("token");
-
       const config = {
         headers: {
-            Authorization: "Bearer " + token
+          Authorization: "Bearer " + token
         }
-    }
-
-    const obj = {
-      productId: id,
-      isChecked: updatedCheckboxStates[id]
-    };
-
-      await axios.post(`${import.meta.env.VITE_API_URL}/check`, obj, config);
-
-      console.log(`Produto com ID ${id} marcado/desmarcado no servidor`);
+      }
+      const markedProducts = { productId: id, isChecked: updatedCheckboxStates[id] };
+      await axios.post(`${import.meta.env.VITE_API_URL}/check`, markedProducts, config);
     } catch (error) {
       console.error("Erro ao salvar o estado do checkbox:", error);
     }
@@ -70,56 +52,48 @@ export default function ProdutosPorUser() {
   const verifyProductExistence = async (id) => {
     try {
       const token = localStorage.getItem("token");
-  
       const config = {
         headers: {
           Authorization: "Bearer " + token
         }
       };
-  
-      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/deletaproduto/${id}`, config);
-  
-      console.log("Produto deletado com sucesso!");
-  
+
+      await axios.delete(`${import.meta.env.VITE_API_URL}/deletaproduto/${id}`, config);
     } catch (error) {
-      // Trate o erro aqui, se necessário
       console.error(error);
     }
-  };  
-
+  };
 
   return (
     <ListagemdeProdutos>
-    {listadeProdutosDoUser.map((produto, index) => (
-      <ListItemContainer key={produto.id}>
-        {checkboxStates[produto.id] ===true ? (
-          <ProductName>Vendido!</ProductName>
-        ) : (
-          <div>
-            <ProductName>Não está disponível?</ProductName>
-            <input
-              type="checkbox"
-              checked={checkboxStates[produto.id] || false}
-              onChange={() => {
-                handleCheckboxChange(produto.id);
-                verifyProductExistence(produto.id);
-              }}
-            />
-          </div>
-        )}
-
-        <ProductImage src={produto.url} alt="SmartPhone" />
-        <ProductName>{produto.nomeproduto}</ProductName>
-        <ProductValor>
-          {(parseFloat(produto.valor.replace(/\./g, "").replace(",", ".")) / 100).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          })}
-        </ProductValor>
-      </ListItemContainer>
-    ))}
-  </ListagemdeProdutos>
-
+      {listadeProdutosDoUser.map((produto, index) => (
+        <ListItemContainer key={produto.id}>
+          {checkboxStates[produto.id] === true ? (
+            <ProductName>Vendido!</ProductName>
+          ) : (
+            <div>
+              <ProductName>Não está disponível?</ProductName>
+              <input
+                type="checkbox"
+                checked={checkboxStates[produto.id] || false}
+                onChange={() => {
+                  handleCheckboxChange(produto.id);
+                  verifyProductExistence(produto.id);
+                }}
+              />
+            </div>
+          )}
+          <ProductImage src={produto.url} alt="SmartPhone" />
+          <ProductName>{produto.nomeproduto}</ProductName>
+          <ProductValor>
+            {(parseFloat(produto.valor.replace(/\./g, "").replace(",", ".")) / 100).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </ProductValor>
+        </ListItemContainer>
+      ))}
+    </ListagemdeProdutos>
   )
 }
 

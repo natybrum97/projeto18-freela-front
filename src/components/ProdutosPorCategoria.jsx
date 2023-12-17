@@ -4,32 +4,25 @@ import { LoginContext } from "../contexts/LoginContext";
 import { useNavigate } from "react-router-dom";
 
 export default function ProdutosPorCategoria() {
-
   const navigate = useNavigate();
-
-  const {listadeProdutosPorCategoria, isLoged } = useContext(LoginContext);
+  const { listadeProdutosPorCategoria, isLoged } = useContext(LoginContext);
 
   useEffect(() => {
     isLoged();
   })
 
-
-    return (
-        <ListagemdeProdutos>
-        {listadeProdutosPorCategoria.map((produto) => (
-
-          <ListItemContainer key={produto.id} onClick={() => navigate(`/item/${produto.id}`)}>
-            <ProductImage src={produto.url} alt="SmartPhone" />
-            <ProductName>{produto.nomeproduto}</ProductName>
-            <ProductValor>{(parseFloat(produto.valor.replace(/\./g, '').replace(',', '.')) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ProductValor>
-            
-          </ListItemContainer>
-
-        )
-        )}
-      </ListagemdeProdutos>
-
-    )
+  return (
+    <ListagemdeProdutos>
+      {listadeProdutosPorCategoria.map((produto) => (
+        <ListItemContainer key={produto.id} onClick={() => navigate(`/item/${produto.id}`)}>
+          <ProductImage src={produto.url} alt="SmartPhone" />
+          <ProductName>{produto.nomeproduto}</ProductName>
+          <ProductValor>{(parseFloat(produto.valor.replace(/\./g, '').replace(',', '.')) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ProductValor>
+        </ListItemContainer>
+      )
+      )}
+    </ListagemdeProdutos>
+  )
 }
 
 const ListagemdeProdutos = styled.div`
@@ -38,6 +31,7 @@ const ListagemdeProdutos = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  justify-content:center;
   color: #000000;
   background-color: #CCCCCC;
   margin-top: 190px;
