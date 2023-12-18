@@ -17,7 +17,7 @@ Some features of the project:
 
 ### Deployment link
 
-- https://projeto18-freela-front-phi.vercel.app/
+- https://projeto18-freela-front-alpha-lake.vercel.app/
 
 ### Technologies Used
 
