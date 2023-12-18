@@ -60,3 +60,35 @@ npm i
 ```bash
 npm run dev
 ```
+
+## My Frontend Docker Image
+
+This Docker image provides an environment for my amazing frontend application.
+
+## How to Use
+
+### Prerequisites
+
+Make sure you have Docker installed on your machine. Refer to the [Docker installation instructions](https://docs.docker.com/get-docker/) for details on how to do this.
+
+### Download and Run
+
+1. **Download the Image:**
+
+    ```bash
+    docker pull natybrum97/myfrontend:latest
+    ```
+
+2. **Run the Container:**
+
+    ```bash
+    docker run -p 8080:80 natybrum97/myfrontend:latest
+    ```
+
+    This assumes that the application is configured to listen on port 80 inside the container, and port 8080 on the host is being mapped to it. Adjust the ports as needed.
+
+3. **Access the Application:**
+
+    Open a web browser and go to [http://localhost:8080](http://localhost:8080). You should see the application running.
+
+
